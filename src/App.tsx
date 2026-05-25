@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, ArrowDown, HelpCircle, CheckCircle2, ShieldCheck, BookmarkCheck } from 'lucide-react';
 
@@ -8,18 +8,79 @@ import Announcements from './components/Announcements';
 import ScheduleSection from './components/ScheduleSection';
 import VerdictSection from './components/VerdictSection';
 import ContactFooter from './components/ContactFooter';
+import AdminPanel from './components/AdminPanel';
+import AdminLoginModal from './components/AdminLoginModal';
 
 import { MOCK_JADWAL, MOCK_PENGUMUMAN, MOCK_PUTUSAN } from './data';
+import { JadwalSidang, Pengumuman, Putusan } from './types';
 
 export default function App() {
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(() => {
+    const savedSession = localStorage.getItem('sipsi_admin_auth');
+    return savedSession === 'true';
+  });
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [searchQueryFromHero, setSearchQueryFromHero] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Live state syncing with LocalStorage
+  const [schedules, setSchedules] = useState<JadwalSidang[]>(() => {
+    const saved = localStorage.getItem('sipsi_schedules');
+    return saved ? JSON.parse(saved) : MOCK_JADWAL;
+  });
+
+  const [announcements, setAnnouncements] = useState<Pengumuman[]>(() => {
+    const saved = localStorage.getItem('sipsi_announcements');
+    return saved ? JSON.parse(saved) : MOCK_PENGUMUMAN;
+  });
+
+  const [verdicts, setVerdicts] = useState<Putusan[]>(() => {
+    const saved = localStorage.getItem('sipsi_verdicts');
+    return saved ? JSON.parse(saved) : MOCK_PUTUSAN;
+  });
+
+  // Action methods with storage syncing
+  const handleAddSchedule = (sch: JadwalSidang) => {
+    const updated = [sch, ...schedules];
+    setSchedules(updated);
+    localStorage.setItem('sipsi_schedules', JSON.stringify(updated));
+  };
+
+  const handleAddAnnouncement = (ann: Pengumuman) => {
+    const updated = [ann, ...announcements];
+    setAnnouncements(updated);
+    localStorage.setItem('sipsi_announcements', JSON.stringify(updated));
+  };
+
+  const handleAddVerdict = (ver: Putusan) => {
+    const updated = [ver, ...verdicts];
+    setVerdicts(updated);
+    localStorage.setItem('sipsi_verdicts', JSON.stringify(updated));
+  };
+
+  const handleDeleteSchedule = (id: string) => {
+    const updated = schedules.filter(s => s.id !== id);
+    setSchedules(updated);
+    localStorage.setItem('sipsi_schedules', JSON.stringify(updated));
+  };
+
+  const handleDeleteAnnouncement = (id: string) => {
+    const updated = announcements.filter(a => a.id !== id);
+    setAnnouncements(updated);
+    localStorage.setItem('sipsi_announcements', JSON.stringify(updated));
+  };
+
+  const handleDeleteVerdict = (id: string) => {
+    const updated = verdicts.filter(v => v.id !== id);
+    setVerdicts(updated);
+    localStorage.setItem('sipsi_verdicts', JSON.stringify(updated));
+  };
+
   // Compute stats
-  const activeSchedulesCount = MOCK_JADWAL.filter(s => s.status !== 'Selesai').length;
-  const newVerdictsCount = MOCK_PUTUSAN.length;
-  const todaySchedulesCount = MOCK_JADWAL.filter(s => s.tanggal === '2026-05-25').length;
-  const ongoingSchedulesCount = MOCK_JADWAL.filter(s => s.status === 'Sedang Berlangsung').length;
+  const activeSchedulesCount = schedules.filter(s => s.status !== 'Selesai').length;
+  const newVerdictsCount = verdicts.length;
+  const todaySchedulesCount = schedules.filter(s => s.tanggal === '2026-05-25').length;
+  const ongoingSchedulesCount = schedules.filter(s => s.status === 'Sedang Berlangsung').length;
 
   const handleHeroSearchSubmit = (category: 'sidang' | 'putusan', query: string) => {
     setSearchQueryFromHero(query);
@@ -70,6 +131,22 @@ export default function App() {
     }
   };
 
+  const handleToggleAdminMode = () => {
+    if (isAdminMode) {
+      setIsAdminMode(false);
+      localStorage.removeItem('sipsi_admin_auth');
+      setToastMessage('🔒 Mode Admin ditutup dan dikunci kembali.');
+      setTimeout(() => setToastMessage(null), 3000);
+    } else {
+      setIsLoginModalOpen(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAdminMode(true);
+    localStorage.setItem('sipsi_admin_auth', 'true');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased selection:bg-gold-200 selection:text-slate-900">
       
@@ -78,7 +155,24 @@ export default function App() {
         onSearchFocus={handleHeaderSearchFocus} 
         activeSchedulesCount={activeSchedulesCount}
         newVerdictsCount={newVerdictsCount}
+        isAdminMode={isAdminMode}
+        onToggleAdminMode={handleToggleAdminMode}
       />
+
+      {/* Admin Passcode Gate Validation overlay */}
+      <AnimatePresence>
+        {isLoginModalOpen && (
+          <AdminLoginModal
+            isOpen={isLoginModalOpen}
+            onClose={() => setIsLoginModalOpen(false)}
+            onLoginSuccess={handleLoginSuccess}
+            currentToastMsg={(msg) => {
+              setToastMessage(msg);
+              setTimeout(() => setToastMessage(null), 4000);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       <main>
         {/* Dynamic hero block with search portal */}
@@ -88,6 +182,32 @@ export default function App() {
           ongoingSchedulesCount={ongoingSchedulesCount}
           totalVerdictsCount={newVerdictsCount}
         />
+
+        {/* Real-time Administrator Command Centre */}
+        <AnimatePresence>
+          {isAdminMode && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98, height: 0 }}
+              animate={{ opacity: 1, scale: 1, height: 'auto' }}
+              exit={{ opacity: 0, scale: 0.98, height: 0 }}
+              className="overflow-hidden mx-auto max-w-7xl px-4 md:px-8 my-8"
+              id="admin-panel-container"
+            >
+              <AdminPanel
+                schedules={schedules}
+                announcements={announcements}
+                verdicts={verdicts}
+                onAddSchedule={handleAddSchedule}
+                onAddAnnouncement={handleAddAnnouncement}
+                onAddVerdict={handleAddVerdict}
+                onDeleteSchedule={handleDeleteSchedule}
+                onDeleteAnnouncement={handleDeleteAnnouncement}
+                onDeleteVerdict={handleDeleteVerdict}
+                onClose={handleToggleAdminMode}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Dynamic floating alert toast notifier */}
         <AnimatePresence>
@@ -108,7 +228,7 @@ export default function App() {
         {/* 1. SCHEDULES PERSIDANGAN SECTION */}
         <div className="relative">
           <ScheduleSection 
-            schedules={MOCK_JADWAL} 
+            schedules={schedules} 
             searchQueryFromHero={searchQueryFromHero}
           />
         </div>
@@ -116,14 +236,14 @@ export default function App() {
         {/* 2. ANNOUNCEMENTS / PENGUMUMAN SECTION */}
         <div className="border-t border-b border-slate-200">
           <Announcements 
-            announcements={MOCK_PENGUMUMAN}
+            announcements={announcements}
           />
         </div>
 
         {/* 3. VERDICTS / PUTUSAN SECTION */}
         <div>
           <VerdictSection 
-            verdicts={MOCK_PUTUSAN}
+            verdicts={verdicts}
             searchQueryFromHero={searchQueryFromHero}
           />
         </div>

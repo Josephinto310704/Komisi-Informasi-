@@ -91,7 +91,7 @@ export default function Announcements({ announcements }: AnnouncementsProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               key={ann.id}
-              className={`group flex flex-col justify-between rounded-3xl border p-6 bg-white hover:shadow-md transition-all duration-300 relative hover:scale-[1.01] hover:-translate-y-0.5 ${
+              className={`group flex flex-col justify-between rounded-3xl border p-5 sm:p-6 bg-white hover:shadow-md transition-all duration-300 relative hover:scale-[1.01] hover:-translate-y-0.5 ${
                 ann.penting 
                   ? 'border-red-300 ring-4 ring-red-500/5' 
                   : 'border-slate-200 hover:border-blue-300'

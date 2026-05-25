@@ -154,7 +154,7 @@ export default function VerdictSection({ verdicts, searchQueryFromHero }: Verdic
               viewport={{ once: true }}
               transition={{ duration: 0.3, delay: idx * 0.05 }}
               key={item.id}
-              className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8 hover:border-blue-300 hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:scale-[1.01] hover:-translate-y-0.5"
+              className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 md:p-8 hover:border-blue-300 hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:scale-[1.01] hover:-translate-y-0.5"
             >
               <div>
                 {/* Header info */}

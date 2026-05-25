@@ -156,11 +156,11 @@ export default function ScheduleSection({ schedules, searchQueryFromHero }: Sche
             {/* 2. Date Trigger Buttons (Col: 4) */}
             <div className="md:col-span-4 space-y-1.5">
               <label htmlFor="date-input" className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block">Tanggal Sidang</label>
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-8 flex gap-1 bg-white p-1 rounded-xl border border-slate-300 h-11 items-center">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex-1 flex gap-1 bg-white p-1 rounded-xl border border-slate-300 h-11 items-center">
                   <button
                     onClick={() => setSelectedDate('')}
-                    className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                    className={`flex-1 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all h-full ${
                       selectedDate === '' 
                         ? 'bg-blue-900 text-white' 
                         : 'text-slate-600 hover:bg-slate-100'
@@ -170,7 +170,7 @@ export default function ScheduleSection({ schedules, searchQueryFromHero }: Sche
                   </button>
                   <button
                     onClick={() => setSelectedDate('2026-05-25')}
-                    className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                    className={`flex-1 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all h-full ${
                       selectedDate === '2026-05-25' 
                         ? 'bg-blue-900 text-white' 
                         : 'text-slate-600 hover:bg-slate-100'
@@ -180,7 +180,7 @@ export default function ScheduleSection({ schedules, searchQueryFromHero }: Sche
                   </button>
                   <button
                     onClick={() => setSelectedDate('2026-05-26')}
-                    className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                    className={`flex-1 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all h-full ${
                       selectedDate === '2026-05-26' 
                         ? 'bg-blue-900 text-white' 
                         : 'text-slate-600 hover:bg-slate-100'
@@ -195,7 +195,7 @@ export default function ScheduleSection({ schedules, searchQueryFromHero }: Sche
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="col-span-4 rounded-xl border border-slate-300 bg-white px-2.5 text-xs text-slate-800 font-mono focus:border-blue-900 focus:outline-hidden"
+                  className="w-full sm:w-28 rounded-xl border border-slate-300 bg-white px-2.5 text-xs text-slate-800 font-mono focus:border-blue-900 focus:outline-hidden min-h-[44px]"
                   title="Pilih tanggal sidang spesifik"
                 />
               </div>
@@ -270,7 +270,7 @@ export default function ScheduleSection({ schedules, searchQueryFromHero }: Sche
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               key={item.id}
-              className="flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-6 hover:border-blue-300 hover:shadow-md transition-all duration-300 cursor-pointer group hover:scale-[1.01] hover:-translate-y-0.5"
+              className="flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 hover:border-blue-300 hover:shadow-md transition-all duration-300 cursor-pointer group hover:scale-[1.01] hover:-translate-y-0.5"
               onClick={() => setSelectedSchedule(item)}
             >
               <div>
