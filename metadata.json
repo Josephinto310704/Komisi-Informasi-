@@ -1,0 +1,6 @@
+{
+  "name": "Portal Jadwal dan Putusan Sidang",
+  "description": "Landing page modern untuk pencarian jadwal sidang, pengumuman sidang, jadwal sidang harian, dan informasi putusan pengadilan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
